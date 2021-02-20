@@ -4,9 +4,7 @@ LABEL maintainer="litong01@us.ibm.com"
 
 ENV PYTHONUNBUFFERED=1
 
-RUN apk add --update py-pip bash ansible docker-cli openssl xxd dos2unix curl libc6-compat && \
-    curl -sSL https://sdk.cloud.google.com | bash && \
-    mv /root/google-cloud-sdk /usr/lib/ && \
+RUN apk add --update py-pip bash ansible docker-cli openssl xxd dos2unix && \
     if [ ! -e /usr/bin/python ]; then ln -sf python3 /usr/bin/python ; fi && \
     mkdir -p /usr/lib/python3.8/site-packages/Crypto/Random/Fortuna
 

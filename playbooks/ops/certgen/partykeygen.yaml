@@ -107,7 +107,7 @@
         type: Opaque
         metadata:
           name: "{{ partycn | replace('@', '-') | replace('.', '-') | lower }}-secret"
-          namespace: "{{ org | replace('.', '-') | lower }}"
+          namespace: "{{ NETNAME }}"
         data:
           tls.crt: >-
             {{ lookup('file', orgrootpath+partyroot+'/msp/signcerts/'+partycn+'-cert.pem', errors='ignore') | b64encode }}
@@ -124,7 +124,7 @@
         type: Opaque
         metadata:
           name: "{{ partycn | replace('@', '-') | replace('.', '-') | lower }}-tls-secret"
-          namespace: "{{ org | replace('.', '-') | lower }}"
+          namespace: "{{ NETNAME }}"
         data:
           tls.crt: >-
             {{ lookup('file', orgrootpath+partyroot+'/tls/'+partytype+'.crt', errors='ignore') | b64encode }}

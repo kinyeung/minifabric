@@ -1,0 +1,67 @@
+{% if allcas is defined and (allcas | length > 0) %}
+{%   for ca in allcas %}
+{%     set caname=(ca.fullname|replace('.','-'))  %}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    k8s-app: {{ caname }}
+  name: {{ caname }}
+  namespace: "{{ NETNAME }}"
+spec:
+  selector:
+    k8s-app: {{ caname }}
+  ports:
+    - name: port1
+      port: {{ ca.port }}
+      targetPort: 7054
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ caname }}
+  namespace: "{{ NETNAME }}"
+spec:
+  selector:
+    matchLabels:
+      k8s-app: {{ caname }}
+      type: ca
+  serviceName: {{ caname }}
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        k8s-app: {{ caname }}
+        type: ca
+    spec:
+      volumes:
+        - name: ca-cert-key
+          secret:
+            secretName: "{{ caname }}-secret"
+        - name: ca-cert-key-tls
+          secret:
+            secretName: "tongli-tls-secret"
+#        - name: data
+#          persistentVolumeClaim:
+#            claimName: {{ caname }}-cadata
+      containers:
+        - name: {{ caname }}
+          image: hyperledger/fabric-ca:1.4
+          imagePullPolicy: IfNotPresent
+          env:
+            - { name: "FABRIC_CA_HOME", value: "/etc/hyperledger/fabric-ca-server" }
+            - { name: "FABRIC_CA_SERVER_CA_NAME", value: "{{ ca.fullname}}" }
+            - { name: "FABRIC_CA_SERVER_CA_KEYFILE", value: "/etc/hyperledger/fabric-ca/idcerts/tls.key" }
+            - { name: "FABRIC_CA_SERVER_CA_CERTFILE", value: "/etc/hyperledger/fabric-ca/idcerts/tls.crt" }
+            - { name: "FABRIC_CA_SERVER_TLS_ENABLED", value: "true" }
+            - { name: "FABRIC_CA_SERVER_TLS_KEYFILE", value: "/etc/hyperledger/fabric-ca/tlscerts/tls.key" }
+            - { name: "FABRIC_CA_SERVER_TLS_CERTFILE", value: "/etc/hyperledger/fabric-ca/tlscerts/tls.crt" }
+          volumeMounts:
+#            - { mountPath: "/etc/hyperledger/fabric-ca-server/", name: "data" }
+            - { mountPath: "/etc/hyperledger/fabric-ca/idcerts", name: "ca-cert-key" }
+            - { mountPath: "/etc/hyperledger/fabric-ca/tlscerts", name: "ca-cert-key-tls" }
+          command: ["fabric-ca-server"]
+          args:  ["start", "-b", "admin:adminpw", "-d"]
+{%   endfor %}
+{% endif %}

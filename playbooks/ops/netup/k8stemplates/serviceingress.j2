@@ -1,0 +1,54 @@
+{% if allorgs is defined and (allorgs|length > 0) %}
+# The TCP service configmap which should include all the ports to be exposed
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tcp-services
+  namespace: ingress-nginx
+data:
+{%  for ca in allcas %}
+{%    set caname=(ca.fullname|replace('.','-'))  %}
+  {{ ca.port }}: "{{ NETNAME }}/{{ caname }}:{{ ca.port }}"
+{%  endfor %}
+
+# Nginx ingress controll container patch to use tcp service configmap
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ingress-nginx-controller
+  namespace: ingress-nginx
+spec:
+  template:
+    spec:
+      containers:
+      - name: controller
+        args:
+        - /nginx-ingress-controller
+        - --publish-service=$(POD_NAMESPACE)/ingress-nginx-controller
+        - --election-id=ingress-controller-leader
+        - --ingress-class=nginx
+        - --configmap=$(POD_NAMESPACE)/ingress-nginx-controller
+        - --validating-webhook=:8443
+        - --validating-webhook-certificate=/usr/local/certificates/cert
+        - --validating-webhook-key=/usr/local/certificates/key
+        - --tcp-services-configmap=$(POD_NAMESPACE)/tcp-services  
+
+# Patch nginx ingress controller service to expose these new ports
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ingress-nginx-controller
+  namespace: ingress-nginx
+spec:
+  ports:
+{%  for ca in allcas %}
+  - name: {{ ca.port }}-tcp
+    port: {{ ca.port }}
+    protocol: TCP
+    targetPort: {{ ca.port }}
+{%  endfor %}
+
+{% endif %}

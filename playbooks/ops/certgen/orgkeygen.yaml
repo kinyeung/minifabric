@@ -61,7 +61,7 @@
         apiVersion: v1
         kind: Namespace
         metadata:
-          name: "{{ org | replace('.', '-') | lower }}"
+          name: "{{ NETNAME }}"
 
   - name: Upload org certificate and key
     k8s:
@@ -73,7 +73,7 @@
         type: Opaque
         metadata:
           name: "{{ (caname + '-' + org) | replace('.', '-') | lower }}-secret"
-          namespace: "{{ org | replace('.', '-') | lower }}"
+          namespace: "{{ NETNAME }}"
         data:
           tls.crt: >-
             {{ lookup('file', orgrootpath+'/ca/'+caname+'.'+org+'-cert.pem', errors='ignore') | b64encode }}
@@ -90,7 +90,7 @@
         type: Opaque
         metadata:
           name: "{{ (caname + '-' + org) | replace('.', '-') | lower }}-tls-secret"
-          namespace: "{{ org | replace('.', '-') | lower }}"
+          namespace: "{{ NETNAME }}"
         data:
           tls.crt: >-
             {{ lookup('file', orgrootpath+'/tlsca/tls'+caname+'.'+org+'-cert.pem', errors='ignore') | b64encode }}

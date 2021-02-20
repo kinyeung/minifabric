@@ -4,7 +4,7 @@ LABEL maintainer="litong01@us.ibm.com"
 
 ENV PYTHONUNBUFFERED=1
 
-RUN apk add --no-cache --update py-pip bash ansible docker-cli openssl xxd dos2unix curl libc6-compat && \
+RUN apk add --update py-pip bash ansible docker-cli openssl xxd dos2unix curl libc6-compat && \
     curl -sSL https://sdk.cloud.google.com | bash && \
     mv /root/google-cloud-sdk /usr/lib/ && \
     if [ ! -e /usr/bin/python ]; then ln -sf python3 /usr/bin/python ; fi && \

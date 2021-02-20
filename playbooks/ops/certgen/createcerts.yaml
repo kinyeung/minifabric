@@ -74,7 +74,7 @@
       kind: ConfigMap
       metadata:
         name: "{{ ordererorgs[0] | replace('.', '-') | lower }}-blocks"
-        namespace: "{{ ordererorgs[0] | replace('.', '-') | lower }}"
+        namespace: "{{ NETNAME }}"
       binaryData:
         genesis.block: >-
           {{ lookup('file', pjroot+'/vars/genesis.block', errors='ignore') | b64encode }}

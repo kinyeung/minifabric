@@ -1,0 +1,31 @@
+---
+- name: Set ca image release
+  set_fact:
+    desiredrelease: "{{ fabric.release is version('2.0', '<') | ternary(fabric.release, '1.4') }}"
+
+- name: "Process keys"
+  include_tasks: "{{ pjroot }}/playbooks/common/processkeys.yaml"
+
+- name: Create ca deployment spec and service file
+  template:
+    src: "{{ pjroot }}/playbooks/ops/netup/k8stemplates/allca.j2"
+    dest: "{{ pjroot }}/vars/run/allca.yaml"
+
+- name: Deploy all ca nodes and their service
+  k8s:
+    kubeconfig: "{{ pjroot }}/vars/kubeconfig/config"
+    state: present
+    src: "{{ pjroot }}/vars/run/allca.yaml"
+
+- name: Create nginx ingress services patch
+  template:
+    src: "{{ pjroot }}/playbooks/ops/netup/k8stemplates/serviceingress.j2"
+    dest: "{{ pjroot }}/vars/run/serviceingress.yaml"
+
+- name: Patch nginx ingress controller
+  k8s:
+    kubeconfig: "{{ pjroot }}/vars/kubeconfig/config"
+    merge_type: strategic-merge
+    src: "{{ pjroot }}/vars/run/serviceingress.yaml"
+
+  

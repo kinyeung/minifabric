@@ -7,9 +7,13 @@ metadata:
   name: tcp-services
   namespace: ingress-nginx
 data:
-{%  for ca in allcas %}
-{%    set caname=(ca.fullname|replace('.','-'))  %}
-  {{ ca.port }}: "{{ NETNAME }}/{{ caname }}:{{ ca.port }}"
+{%  for node in allcas %}
+{%    set nodename=(node.fullname|replace('.','-'))  %}
+  {{ node.port }}: "{{ NETNAME }}/{{ nodename }}:{{ node.port }}"
+{%  endfor %}
+{%  for node in allorderers %}
+{%    set nodename=(node.fullname|replace('.','-'))  %}
+  {{ node.port }}: "{{ NETNAME }}/{{ nodename }}:{{ node.port }}"
 {%  endfor %}
 
 # Nginx ingress controll container patch to use tcp service configmap
@@ -44,11 +48,17 @@ metadata:
   namespace: ingress-nginx
 spec:
   ports:
-{%  for ca in allcas %}
-  - name: {{ ca.port }}-tcp
-    port: {{ ca.port }}
+{%  for node in allcas %}
+  - name: {{ node.port }}-tcp
+    port: {{ node.port }}
     protocol: TCP
-    targetPort: {{ ca.port }}
+    targetPort: {{ node.port }}
+{%  endfor %}
+{%  for node in allorderers %}
+  - name: {{ node.port }}-tcp
+    port: {{ node.port }}
+    protocol: TCP
+    targetPort: {{ node.port }}
 {%  endfor %}
 
 {% endif %}

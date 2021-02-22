@@ -1,67 +1,177 @@
 {% if allcas is defined and (allcas | length > 0) %}
-{%   for ca in allcas %}
-{%     set caname=(ca.fullname|replace('.','-'))  %}
+# All the ca nodes and services
+{%   for node in allcas %}
+{%     set nodename=(node.fullname|replace('.','-'))  %}
 ---
 apiVersion: v1
 kind: Service
 metadata:
   labels:
-    k8s-app: {{ caname }}
-  name: {{ caname }}
+    k8s-app: {{ nodename }}
+  name: {{ nodename }}
   namespace: "{{ NETNAME }}"
 spec:
   selector:
-    k8s-app: {{ caname }}
+    k8s-app: {{ nodename }}
   ports:
-    - name: port1
-      port: {{ ca.port }}
-      targetPort: 7054
+  - name: port1
+    port: {{ node.port }}
+    targetPort: 7054
 ---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: {{ caname }}
+  name: {{ nodename }}
   namespace: "{{ NETNAME }}"
 spec:
   selector:
     matchLabels:
-      k8s-app: {{ caname }}
+      k8s-app: {{ nodename }}
       type: ca
-  serviceName: {{ caname }}
+  serviceName: {{ nodename }}
   replicas: 1
   template:
     metadata:
       labels:
-        k8s-app: {{ caname }}
+        k8s-app: {{ nodename }}
         type: ca
     spec:
       volumes:
-        - name: ca-cert-key
-          secret:
-            secretName: "{{ caname }}-secret"
-        - name: ca-cert-key-tls
-          secret:
-            secretName: "tongli-tls-secret"
-#        - name: data
-#          persistentVolumeClaim:
-#            claimName: {{ caname }}-cadata
+      - name: cert-key-id
+        secret:
+          secretName: "{{ nodename }}-secret"
+      - name: cert-key-tls
+        secret:
+          secretName: "{{ nodename }}-tls-secret"
       containers:
-        - name: {{ caname }}
-          image: hyperledger/fabric-ca:1.4
-          imagePullPolicy: IfNotPresent
-          env:
-            - { name: "FABRIC_CA_HOME", value: "/etc/hyperledger/fabric-ca-server" }
-            - { name: "FABRIC_CA_SERVER_CA_NAME", value: "{{ ca.fullname}}" }
-            - { name: "FABRIC_CA_SERVER_CA_KEYFILE", value: "/etc/hyperledger/fabric-ca/idcerts/tls.key" }
-            - { name: "FABRIC_CA_SERVER_CA_CERTFILE", value: "/etc/hyperledger/fabric-ca/idcerts/tls.crt" }
-            - { name: "FABRIC_CA_SERVER_TLS_ENABLED", value: "true" }
-            - { name: "FABRIC_CA_SERVER_TLS_KEYFILE", value: "/etc/hyperledger/fabric-ca/tlscerts/tls.key" }
-            - { name: "FABRIC_CA_SERVER_TLS_CERTFILE", value: "/etc/hyperledger/fabric-ca/tlscerts/tls.crt" }
-          volumeMounts:
-#            - { mountPath: "/etc/hyperledger/fabric-ca-server/", name: "data" }
-            - { mountPath: "/etc/hyperledger/fabric-ca/idcerts", name: "ca-cert-key" }
-            - { mountPath: "/etc/hyperledger/fabric-ca/tlscerts", name: "ca-cert-key-tls" }
-          command: ["fabric-ca-server"]
-          args:  ["start", "-b", "admin:adminpw", "-d"]
+      - name: {{ nodename }}
+        image: hyperledger/fabric-ca:1.4
+        imagePullPolicy: IfNotPresent
+        env:
+        - { name: "FABRIC_CA_HOME", value: "/etc/hyperledger/fabric-ca-server" }
+        - { name: "FABRIC_CA_SERVER_CA_NAME", value: "{{ node.fullname}}" }
+        - { name: "FABRIC_CA_SERVER_CA_KEYFILE", value: "/etc/hyperledger/fabric-ca/idcerts/tls.key" }
+        - { name: "FABRIC_CA_SERVER_CA_CERTFILE", value: "/etc/hyperledger/fabric-ca/idcerts/tls.crt" }
+        - { name: "FABRIC_CA_SERVER_TLS_ENABLED", value: "true" }
+        - { name: "FABRIC_CA_SERVER_TLS_KEYFILE", value: "/etc/hyperledger/fabric-ca/tlscerts/tls.key" }
+        - { name: "FABRIC_CA_SERVER_TLS_CERTFILE", value: "/etc/hyperledger/fabric-ca/tlscerts/tls.crt" }
+        volumeMounts:
+          - { mountPath: "/etc/hyperledger/fabric-ca/idcerts", name: "cert-key-id" }
+          - { mountPath: "/etc/hyperledger/fabric-ca/tlscerts", name: "cert-key-tls" }
+        command: ["fabric-ca-server"]
+        args:  ["start", "-b", "admin:adminpw", "-d"]
+{%   endfor %}
+{% endif %}
+
+{% if allorderers is defined and (allorderers | length > 0) %}
+# All orderer nodes and services
+{%   for node in allorderers %}
+{%     set nodename=(node.fullname|replace('.','-'))  %}
+{%     set canodes=allcas|selectattr('org','equalto', node.org)|list %}
+{%     set caname=((canodes|length)>0)|ternary(canodes[0].name, 'ca') %}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    k8s-app: {{ nodename }}
+  name: {{ nodename }}
+  namespace: "{{ NETNAME }}"
+spec:
+  selector:
+    k8s-app: {{ nodename }}
+  ports:
+  - name: port1
+    port: {{ node.port }}
+    targetPort: 7050
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ nodename }}
+  namespace: "{{ NETNAME }}"
+spec:
+  selector:
+    matchLabels:
+      k8s-app: {{ nodename }}
+      type: orderer
+  serviceName: {{ nodename }}
+  replicas: 1
+  volumeClaimTemplates:
+  - metadata:
+      name: {{ nodename }}-data
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 5Gi
+  template:
+    metadata:
+      labels:
+        k8s-app: {{ nodename }}
+        type: orderer
+    spec:
+      volumes:
+      - name: cert-key-id
+        secret:
+          secretName: "{{ nodename }}-secret"
+      - name: cert-key-tls
+        secret:
+          secretName: "{{ nodename }}-tls-secret"
+      - name: admin-cert-key
+        secret:
+          secretName: "admin-{{ node.mspid }}-secret"
+      - name: ca-cert-key
+        secret:
+          secretName: "{{ caname }}-{{ node.mspid }}-secret"
+      - name: genesis-block
+        configMap:
+          name: {{ ordererorgs[0] | replace('.', '-') | lower }}-blocks
+      initContainers:
+      - name: setupmsp
+        image: busybox
+        command:
+        - sh
+        - "-c"
+        - |
+          set -ex
+          cd /dataroot
+          mkdir -p msp/admincerts msp/cacerts msp/keystore msp/signcerts msp/tlscacerts
+          cp /idcerts/tls.crt msp/signcerts/{{ node.fullname }}-cert.pem
+          cp /idcerts/tls.key msp/keystore/priv_sk
+          cp /admincerts/tls.crt msp/admincerts/Admin@{{ node.org }}-cert.pem
+          cp /cacerts/tls.crt msp/cacerts/{{caname}}.{{ node.org }}-cert.pem
+          [[ -d data ]] || mkdir data
+          ls -lR /dataroot
+        volumeMounts:
+          - { mountPath: "/admincerts", name: "admin-cert-key" }
+          - { mountPath: "/cacerts", name: "ca-cert-key" }
+          - { mountPath: "/idcerts", name: "cert-key-id" }
+          - { mountPath: "/tlscerts", name: "cert-key-tls" }
+          - { mountPath: "/dataroot", name: "{{ nodename }}-data" }
+      containers:
+      - name: {{ nodename }}
+        image: hyperledger/fabric-orderer:{{ fabric.release }}
+        imagePullPolicy: IfNotPresent
+        env:
+        - { name: "ORDERER_GENERAL_LISTENADDRESS", value: "0.0.0.0" }
+        - { name: "ORDERER_GENERAL_GENESISMETHOD", value: "file" }
+        - { name: "ORDERER_GENERAL_GENESISFILE", value: "/etc/hyperledger/genesisfile/genesis.block" }
+        - { name: "ORDERER_GENERAL_LOCALMSPID", value: "{{ node.org }}" }
+        - { name: "ORDERER_GENERAL_LOCALMSPDIR", value: "/etc/hyperledger/fabric/msp" }
+        - { name: "ORDERER_GENERAL_TLS_ENABLED", value: "true" }
+        - { name: "ORDERER_GENERAL_TLS_SERVERHOSTOVERRIDE", value: "{{ node.name }}" }
+        - { name: "ORDERER_GENERAL_TLS_PRIVATEKEY", value: "/etc/hyperledger/tlscerts/tls.key" }
+        - { name: "ORDERER_GENERAL_TLS_CERTIFICATE", value: "/etc/hyperledger/tlscerts/tls.crt" }
+        - { name: "ORDERER_GENERAL_TLS_ROOTCAS", value: "[/etc/hyperledger/tlscerts/tls.crt]" }
+        - { name: "ORDERER_GENERAL_FILELEDGER_LOCATION", value: "/var/hyperledger/production/orderer"}
+        volumeMounts:
+          - { mountPath: "/etc/hyperledger/idcerts", name: "cert-key-id" }
+          - { mountPath: "/etc/hyperledger/tlscerts", name: "cert-key-tls" }
+          - { mountPath: "/etc/hyperledger/genesisfile", name: "genesis-block" }
+          - { mountPath: "/var/hyperledger/production/orderer", name: "{{ nodename }}-data", subPath: data }
+          - { mountPath: "/etc/hyperledger/fabric/msp", name: "{{ nodename }}-data", subPath: msp }
+        command: ["orderer"]
 {%   endfor %}
 {% endif %}

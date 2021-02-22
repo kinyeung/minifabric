@@ -7,11 +7,7 @@ metadata:
   name: tcp-services
   namespace: ingress-nginx
 data:
-{%  for node in allcas %}
-{%    set nodename=(node.fullname|replace('.','-'))  %}
-  {{ node.port }}: "{{ NETNAME }}/{{ nodename }}:{{ node.port }}"
-{%  endfor %}
-{%  for node in allorderers %}
+{%  for node in allcas+allorderers+allpeers %}
 {%    set nodename=(node.fullname|replace('.','-'))  %}
   {{ node.port }}: "{{ NETNAME }}/{{ nodename }}:{{ node.port }}"
 {%  endfor %}
@@ -48,13 +44,7 @@ metadata:
   namespace: ingress-nginx
 spec:
   ports:
-{%  for node in allcas %}
-  - name: {{ node.port }}-tcp
-    port: {{ node.port }}
-    protocol: TCP
-    targetPort: {{ node.port }}
-{%  endfor %}
-{%  for node in allorderers %}
+{%  for node in allcas+allorderers+allpeers %}
   - name: {{ node.port }}-tcp
     port: {{ node.port }}
     protocol: TCP

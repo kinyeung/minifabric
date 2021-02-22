@@ -28,4 +28,12 @@
     merge_type: strategic-merge
     src: "{{ pjroot }}/vars/run/serviceingress.yaml"
 
-  
+- name: Create container to run various operations
+  command: >-
+    docker run -dit --name {{ CLINAME }} --hostname {{ CLINAME }}
+    -v /var/run/docker.sock:/var/run/docker.sock
+    -v {{ hostroot }}/vars:/vars
+    -v {{ hostroot }}/vars/chaincode:{{ gopath }}/src/github.com/chaincode
+    {{ container_options }}
+    hyperledger/fabric-tools:{{ fabric.release }}
+

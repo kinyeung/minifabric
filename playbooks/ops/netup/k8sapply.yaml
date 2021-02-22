@@ -28,6 +28,10 @@
     merge_type: strategic-merge
     src: "{{ pjroot }}/vars/run/serviceingress.yaml"
 
+- name: Set tool gopath
+  set_fact:
+    gopath: "{{ (fabric.release is version('2.0', '>='))|ternary('/go', '/opt/gopath') }}"
+
 - name: Create container to run various operations
   command: >-
     docker run -dit --name {{ CLINAME }} --hostname {{ CLINAME }}

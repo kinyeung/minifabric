@@ -1,3 +1,4 @@
+{% set defaultPort={'ca': '7054', 'peer':'7051', 'orderer': '7050'} %}
 {% if allorgs is defined and (allorgs|length > 0) %}
 # The TCP service configmap which should include all the ports to be exposed
 ---
@@ -9,7 +10,7 @@ metadata:
 data:
 {%  for node in allcas+allorderers+allpeers %}
 {%    set nodename=(node.fullname|replace('.','-'))  %}
-  {{ node.port }}: "{{ NETNAME }}/{{ nodename }}:{{ node.port }}"
+  {{ node.port }}: "{{ NETNAME }}/{{ nodename }}:{{ defaultPort[node.type] }}"
 {%  endfor %}
 
 # Nginx ingress controll container patch to use tcp service configmap

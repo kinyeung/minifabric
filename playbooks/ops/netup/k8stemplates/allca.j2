@@ -15,7 +15,7 @@ spec:
     k8s-app: {{ nodename }}
   ports:
   - name: caport
-    port: {{ node.port }}
+    port: 7054
     targetPort: 7054
 ---
 apiVersion: apps/v1
@@ -82,7 +82,7 @@ spec:
     k8s-app: {{ nodename }}
   ports:
   - name: ordererport
-    port: {{ node.port }}
+    port: 7050
     targetPort: 7050
 ---
 apiVersion: apps/v1
@@ -155,23 +155,22 @@ spec:
         image: hyperledger/fabric-orderer:{{ fabric.release }}
         imagePullPolicy: IfNotPresent
         env:
-        - { name: "ORDERER_GENERAL_LISTENADDRESS",          value: "0.0.0.0" }
-        - { name: "ORDERER_GENERAL_GENESISMETHOD",          value: "file" }
-        - { name: "ORDERER_GENERAL_GENESISFILE",            value: "/etc/hyperledger/genesisfile/genesis.block" }
-        - { name: "ORDERER_GENERAL_LOCALMSPID",             value: "{{ node.mspid }}" }
-        - { name: "ORDERER_GENERAL_LOCALMSPDIR",            value: "/etc/hyperledger/fabric/msp" }
-        - { name: "ORDERER_GENERAL_TLS_ENABLED",            value: "true" }
-        - { name: "ORDERER_GENERAL_TLS_SERVERHOSTOVERRIDE", value: "{{ node.name }}" }
-        - { name: "ORDERER_GENERAL_TLS_PRIVATEKEY",         value: "/etc/hyperledger/tlscerts/tls.key" }
-        - { name: "ORDERER_GENERAL_TLS_CERTIFICATE",        value: "/etc/hyperledger/tlscerts/tls.crt" }
-        - { name: "ORDERER_GENERAL_TLS_ROOTCAS",            value: "[/etc/hyperledger/tlscerts/tls.crt]" }
-        - { name: "ORDERER_GENERAL_FILELEDGER_LOCATION",    value: "/var/hyperledger/production"}
+        - { name: "ORDERER_GENERAL_LISTENADDRESS",             value: "0.0.0.0" }
+        - { name: "ORDERER_GENERAL_GENESISMETHOD",             value: "file" }
+        - { name: "ORDERER_GENERAL_GENESISFILE",               value: "/etc/hyperledger/genesisfile/genesis.block" }
+        - { name: "ORDERER_GENERAL_LOCALMSPID",                value: "{{ node.mspid }}" }
+        - { name: "ORDERER_GENERAL_LOCALMSPDIR",               value: "/etc/hyperledger/fabric/msp" }
+        - { name: "ORDERER_GENERAL_TLS_ENABLED",               value: "true" }
+        - { name: "ORDERER_GENERAL_TLS_SERVERHOSTOVERRIDE",    value: "{{ node.name }}" }
+        - { name: "ORDERER_GENERAL_TLS_PRIVATEKEY",            value: "/etc/hyperledger/tlscerts/tls.key" }
+        - { name: "ORDERER_GENERAL_TLS_CERTIFICATE",           value: "/etc/hyperledger/tlscerts/tls.crt" }
+        - { name: "ORDERER_GENERAL_TLS_ROOTCAS",               value: "[/etc/hyperledger/tlscerts/tls.crt]" }
+        - { name: "ORDERER_GENERAL_FILELEDGER_LOCATION",       value: "/var/hyperledger/production" }
 {%      if fabric.settings is defined and fabric.settings.orderer is defined %}
 {%        for setting in (fabric.settings.orderer|dict2items) %}
         - { name: "{{ setting.key }}",                      value: "{{ setting.value }}" }
 {%        endfor %}
 {%      endif %}
-
         volumeMounts:
           - { mountPath: "/etc/hyperledger/idcerts", name: "cert-key-id" }
           - { mountPath: "/etc/hyperledger/tlscerts", name: "cert-key-tls" }
@@ -202,8 +201,11 @@ spec:
     k8s-app: {{ nodename }}
   ports:
   - name: peerport
-    port: {{ node.port }}
+    port: 7051
     targetPort: 7051
+  - name: chaincodeport
+    port: 7052
+    targetPort: 7052
 ---
 apiVersion: apps/v1
 kind: StatefulSet
@@ -291,6 +293,8 @@ spec:
       - name: peer
         image: hyperledger/fabric-peer:{{ fabric.release }}
         imagePullPolicy: IfNotPresent
+        securityContext:
+          privileged: true        
         env:
         - { name: "CORE_VM_ENDPOINT",                   value: "unix:///var/run/docker.sock" }
         - { name: "CORE_PEER_GOSSIP_USELEADERELECTION", value: "true" }
@@ -303,16 +307,16 @@ spec:
         - { name: "CORE_CHAINCODE_EXECUTETIMEOUT",      value: "300s" }
         - { name: "CORE_PEER_ID",                       value: "{{ node.fullname }}" }
         - { name: "CORE_PEER_MSPCONFIGPATH",            value: "/etc/hyperledger/fabric/msp" }
-        - { name: "CORE_PEER_ADDRESS",                  value: "{{ node.fullname }}:7051" }
+        - { name: "CORE_PEER_ADDRESS",                  value: "{{ node.fullname | replace('.','-') }}:7051" }
         - { name: "CORE_PEER_LISTENADDRESS",            value: "0.0.0.0:7051" }
-        - { name: "CORE_PEER_CHAINCODEADDRESS",         value: "{{ node.fullname }}:7052" }
+        - { name: "CORE_PEER_CHAINCODEADDRESS",         value: "{{ node.fullname | replace('.','-') }}:7052" }
         - { name: "CORE_PEER_CHAINCODELISTENADDRESS",   value: "0.0.0.0:7052" }
 {%      set sameorgpeers = allpeers|selectattr('org', 'equalto', node.org)|list %}
 {%      if sameorgpeers|length > 1 %}
 {%        set otherpeer = sameorgpeers|difference([node])|list|first %}
-        - { name: "CORE_PEER_GOSSIP_BOOTSTRAP",         value: "{{ otherpeer.url }}:{{ otherpeer.port }}" }
+        - { name: "CORE_PEER_GOSSIP_BOOTSTRAP",         value: "{{ otherpeer.fullname | replace('.','-') }}:7051" }
 {%      else %}
-        - { name: "CORE_PEER_GOSSIP_BOOTSTRAP",         value: "{{ node.url }}:{{ node.port }}" }
+        - { name: "CORE_PEER_GOSSIP_BOOTSTRAP",         value: "{{ node.fullname | replace('.','-') }}:7051" }
 {%      endif %}
         - { name: "CORE_PEER_GOSSIP_EXTERNALENDPOINT",  value: "{{ node.url }}:{{ node.port }}" }
         - { name: "CORE_PEER_LOCALMSPID",               value: "{{ node.mspid }}" }

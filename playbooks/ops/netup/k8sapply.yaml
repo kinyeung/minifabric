@@ -1,4 +1,13 @@
 ---
+- name: Query Fabric docker network
+  command: >-
+    docker network ls -f name={{ NETNAME }} -q
+  register: netstat
+
+- name: Create fabric docker network if it does not exist
+  command: "docker network create {{ NETNAME }}"
+  when: netstat.stdout == ""
+
 - name: Set ca image release
   set_fact:
     desiredrelease: "{{ fabric.release is version('2.0', '<') | ternary(fabric.release, '1.4') }}"
@@ -32,12 +41,12 @@
   set_fact:
     gopath: "{{ (fabric.release is version('2.0', '>='))|ternary('/go', '/opt/gopath') }}"
 
-- name: Create container to run various operations
+- name: Start cli container for all fabric operations
   command: >-
-    docker run -dit --name {{ CLINAME }} --hostname {{ CLINAME }}
+    docker run -dit --network {{ NETNAME }} --name {{ CLINAME }} --hostname {{ CLINAME }}
     -v /var/run/docker.sock:/var/run/docker.sock
     -v {{ hostroot }}/vars:/vars
     -v {{ hostroot }}/vars/chaincode:{{ gopath }}/src/github.com/chaincode
     {{ container_options }}
     hyperledger/fabric-tools:{{ fabric.release }}
-
+  ignore_errors: yes

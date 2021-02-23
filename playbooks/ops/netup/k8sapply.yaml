@@ -15,12 +15,12 @@
 - name: "Process keys"
   include_tasks: "{{ pjroot }}/playbooks/common/processkeys.yaml"
 
-- name: Create ca deployment spec and service file
+- name: Create deployment spec and service file
   template:
     src: "{{ pjroot }}/playbooks/ops/netup/k8stemplates/allnodes.j2"
     dest: "{{ pjroot }}/vars/run/allnodes.yaml"
 
-- name: Deploy all ca nodes and their service
+- name: Deploy all nodes and their service
   k8s:
     kubeconfig: "{{ pjroot }}/vars/kubeconfig/config"
     state: present

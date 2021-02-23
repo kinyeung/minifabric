@@ -127,7 +127,7 @@ spec:
           secretName: "{{ caname }}-{{ node.mspid }}-secret"
       - name: genesis-block
         configMap:
-          name: {{ ordererorgs[0] | replace('.', '-') | lower }}-blocks
+          name: genesis-blocks
       initContainers:
       - name: setupmsp
         image: busybox

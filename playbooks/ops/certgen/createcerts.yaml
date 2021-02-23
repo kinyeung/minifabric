@@ -50,6 +50,11 @@
     set_fact:
       K8SIP: "{{ nginx.resources[0].status.loadBalancer.ingress[0].ip }}"
 
+  - name: K8S Public IP Address
+    debug:
+      msg: "{{ K8SIP }}"
+    tags: [print_action]
+
 - name: "Ensure certificate directory is clean"
   file:
     path: "{{ pjroot }}/vars/keyfiles"

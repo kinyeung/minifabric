@@ -33,6 +33,16 @@
     kind: Namespace
     name: "{{ NETNAME }}"
 
+- name: List all the containers on the network
+  command: >-
+    docker ps -aqf network={{ NETNAME }}
+  register: containers
+
+- name: Remove the container
+  command: >-
+    docker rm -f {{ containers.stdout_lines | join(' ') }}
+  when: containers.stdout_lines | length > 0
+
 - name: Query Fabric docker network
   command: >-
     docker network ls -f name={{ NETNAME }} -q

@@ -55,6 +55,11 @@
       msg: "{{ K8SIP }}"
     tags: [print_action]
 
+  - name: Use the obtained IP address as endpoint
+    when: K8SIP is defined
+    set_fact:
+      endpoint_address: "{{ K8SIP }}"
+
 - name: "Ensure certificate directory is clean"
   file:
     path: "{{ pjroot }}/vars/keyfiles"

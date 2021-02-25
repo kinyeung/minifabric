@@ -37,6 +37,11 @@
     merge_type: strategic-merge
     src: "{{ pjroot }}/vars/run/allservices.yaml"
 
+- name: Wait for all nodes to be ready
+  pause:
+    minutes: 2
+    prompt: "Waiting for all nodes to be ready to serve requests..."
+
 - name: Set tool gopath
   set_fact:
     gopath: "{{ (fabric.release is version('2.0', '>='))|ternary('/go', '/opt/gopath') }}"

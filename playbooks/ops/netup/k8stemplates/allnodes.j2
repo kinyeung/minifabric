@@ -325,7 +325,7 @@ spec:
 {%      endif %}
         - { name: "CORE_PEER_GOSSIP_EXTERNALENDPOINT",  value: "{{ node.url }}:{{ node.port }}" }
         - { name: "CORE_PEER_LOCALMSPID",               value: "{{ node.mspid }}" }
-        - { name: "CORE_CHAINCODE_LOGGING_LEVEL",       value: "DEBUG" }
+        - { name: "CORE_CHAINCODE_LOGGING_LEVEL",       value: "ERROR" }
 {%      if fabric.settings is defined and fabric.settings.peer is defined %}
 {%        for setting in (fabric.settings.peer|dict2items) %}
         - { name: "{{ setting.key }}", value: "{{ setting.value }}" }

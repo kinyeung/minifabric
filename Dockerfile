@@ -12,7 +12,7 @@ COPY . /home
 COPY plugins /usr/lib/python3.8/site-packages/ansible/plugins
 COPY pypatch /usr/lib/python3.8/site-packages/Crypto/Random/Fortuna
 RUN rm -rf /var/cache/apk/* && rm -rf /tmp/* && apk update && \
-    pip install openshift requests google-auth && \
+    pip install openshift==0.11.2 requests google-auth && \
     dos2unix -q /home/main.sh /home/scripts/mainfuncs.sh \
     /usr/lib/python3.8/site-packages/ansible/plugins/callback/minifab.py && \
     apk del dos2unix && rm -rf /var/cache/apk/* && rm -rf /tmp/*

@@ -25,6 +25,8 @@
     set_fact:
       allcas: "{{ [] }}"
       allpeers: "{{ [] }}"
+      allendorsers: "{{ [] }}"
+      allcommitters: "{{ [] }}"
       allorderers: "{{ [] }}"
       allcouchdbs: "{{ [] }}"
       alldash: "{{ [] }}"

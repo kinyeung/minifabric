@@ -84,7 +84,7 @@
             'url': item+'.couchdb', 'port': '5984', 'mspid': item.split('.')[1:] | join('-'),
             'name':item.split('.')[0]+'.couchdb', 'fullname': item+'.couchdb', 'type': 'db' }] }}
       with_items: "{{ fabric.endorsers + fabric.committers }}"
-      when: ( fabric.endorsers is defined ) | ( fabric.committers is defined ) and (DB_TYPE|lower) == "couchdb"
+      when: allpeers|length > 0 and (DB_TYPE|lower) == "couchdb"
 
     - name: Get all orderer object list
       set_fact:
@@ -146,7 +146,7 @@
             'name':item.split('.')[0]+'.couchdb', 'fullname': item+'.couchdb', 'type': 'db' }] }}
         nodeport: "{{ nodeport|int + 1 }}"
       with_items: "{{ fabric.endorsers + fabric.committers }}"
-      when: ( fabric.endorsers is defined ) | ( fabric.committers is defined ) and (DB_TYPE|lower) == "couchdb"
+      when: allpeers|length > 0 and (DB_TYPE|lower) == "couchdb"
 
     - name: Get all orderer object list
       set_fact:

@@ -55,7 +55,7 @@
             'url': item, 'port': '7051', 'mspid': item.split('.')[1:] | join('-'),
             'name':item.split('.')[0], 'fullname': item, 'type': 'peer' }] }}
       with_items: "{{ fabric.endorsers + fabric.committers }}"
-      when: fabric.endorsers is defined | fabric.committers is defined
+      # when: fabric.endorsers is defined | fabric.committers is defined
     
     - name: Get all endorser object list
       set_fact:
@@ -115,7 +115,7 @@
             'url': item, 'port': '7051', 'mspid': item.split('.')[1:] | join('-'),
             'name':item.split('.')[0], 'fullname': item, 'type': 'peer' }] }}
       with_items: "{{ fabric.endorsers + fabric.committers }}"
-      when: fabric.endorsers is defined | fabric.committers is defined
+      # when: fabric.endorsers is defined | fabric.committers is defined
     
     - name: Get all endorser object list
       set_fact:

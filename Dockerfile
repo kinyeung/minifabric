@@ -1,9 +1,9 @@
 FROM alpine:3.13
 
-LABEL maintainer="litong01@us.ibm.com"
+LABEL maintainer="kinyeungg@gmail.com"
 
 ENV PYTHONUNBUFFERED=1
-
+RUN set -eux && sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories
 RUN apk add --update py-pip bash ansible docker-cli openssl xxd dos2unix && \
     if [ ! -e /usr/bin/python ]; then ln -sf python3 /usr/bin/python ; fi && \
     mkdir -p /usr/lib/python3.8/site-packages/Crypto/Random/Fortuna

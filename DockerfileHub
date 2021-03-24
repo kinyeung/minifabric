@@ -3,7 +3,7 @@
 # @see https://github.com/hyperledger-labs/minifabric
 #
 FROM alpine/git AS BUILD
-
+RUN set -eux && sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories
 RUN cd /tmp && git init minifabric && cd minifabric                && \
     git remote add origin https://github.com/kinyeung/minifabric.git   && \
     git pull --depth=1 origin main && mv plugins /tmp            && \
@@ -15,7 +15,7 @@ FROM alpine:latest
 LABEL maintainer="kinyeungg@gmail.com"
 
 ENV PYTHONUNBUFFERED=1
-
+RUN set -eux && sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories
 RUN apk add --no-cache py-pip bash ansible docker-cli  openssl xxd && \
     if [ ! -e /usr/bin/python ]; then ln -sf python3 /usr/bin/python ; fi && \
     mkdir -p /usr/lib/python3.8/site-packages/Crypto/Random/Fortuna

@@ -5,14 +5,14 @@
 FROM alpine/git AS BUILD
 
 RUN cd /tmp && git init minifabric && cd minifabric                && \
-    git remote add origin https://github.com/hyperledger-labs/minifabric   && \
+    git remote add origin https://github.com/kinyeung/minifabric.git   && \
     git pull --depth=1 origin main && mv plugins /tmp            && \
     mv pypatch /tmp && \
     rm -f .dockerignore .gitignore Dockerfile DockerfileHub 
 
 FROM alpine:latest
 
-LABEL maintainer="litong01@us.ibm.com"
+LABEL maintainer="kinyeungg@gmail.com"
 
 ENV PYTHONUNBUFFERED=1
 

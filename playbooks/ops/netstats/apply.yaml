@@ -6,7 +6,7 @@
 
 - name: Get current image date and time
   command: >-
-    docker images hyperledgerlabs/minifab:latest --format 
+    docker images kinyeung/minifab:latest --format 
     "{{LB}}{{LB}}.ID{{RB}}{{RB}}   {{LB}}{{LB}}.CreatedAt{{RB}}{{RB}}"
   register: theresult
 

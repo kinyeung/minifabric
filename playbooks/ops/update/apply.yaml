@@ -9,7 +9,7 @@
 
 - name: Pull minifabric docker image
   command: >-
-    docker pull hyperledgerlabs/minifab:latest
+    docker pull kinyeung/minifab:latest
   register: theresult
 
 - name: "Minifabric update succeeded"

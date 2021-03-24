@@ -26,7 +26,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: 'Build up the minifabric container'
-        run: docker build -t hyperledgerlabs/minifab:latest .
+        run: docker build -t kinyeung/minifab:latest .
 
       - name: 'Setup minifabric network'
         run: ./minifab up -i ${{ matrix.fabric }}

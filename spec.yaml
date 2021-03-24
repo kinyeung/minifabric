@@ -2,9 +2,10 @@ fabric:
   cas:
   - "ca1.org0.example.com"
   - "ca1.org1.example.com"
-  peers: 
-  - "peer1.org0.example.com"
+  endorsers: 
   - "peer2.org0.example.com"
+  committers: 
+  - "peer1.org0.example.com"
   - "peer1.org1.example.com"
   - "peer2.org1.example.com"
   orderers:
@@ -29,3 +30,7 @@ fabric:
   netname: "mysite"
   ### set the extra optins for docker run command
   # container_options: "--restart=always --log-opt max-size=10m --log-opt max-file=3"
+  orderer_options: "--cpus=2 --memory-swap=2G"
+  endorser_options: "--cpus=2 --memory-swap=2G"
+  committer_options: "--cpus=2 --memory-swap=2G"
+

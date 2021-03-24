@@ -37,7 +37,7 @@
   with_items: "{{ allcouchdbs }}"
   when: (DB_TYPE|lower) == "couchdb"
 
-- name: Start all peer nodes
+- name: Start all endorser nodes
   command: >-
     docker run -d --network {{ NETNAME }} --name {{ item.fullname }} --hostname {{ item.fullname }}
     --env-file {{ pjroot }}/vars/run/{{ item.fullname }}.env {{ item.portmap }}
@@ -45,18 +45,43 @@
     -v {{ mpath }}/{{item.org}}/peers/{{item.fullname}}/msp:/etc/hyperledger/fabric/msp
     -v {{ mpath }}/{{item.org}}/peers/{{item.fullname}}/tls:/etc/hyperledger/fabric/tls
     -v {{ item.fullname }}:/var/hyperledger/production
-    {{ container_options }}
+    {{ endorser_options }}
     hyperledger/fabric-peer:{{ fabric.release }} peer node start
-  with_items: "{{ allpeers }}"
-  register: peerstat
+  with_items: "{{ allendorsers }}"
+  register: endorserstat
   ignore_errors: yes
 
 - name: "Check errors"
-  when: peerstat.failed is defined and peerstat.failed == true
+  when: endorserstat.failed is defined and endorserstat.failed == true
   block:
   - name: Error!
     debug:
-      msg: "{{ peerstat.results[0].stderr }}"
+      msg: "{{ endorserstat.results[0].stderr }}"
+    tags: [print_action]
+
+  - name: Exit play when there is an error
+    meta: end_play
+
+- name: Start all committer nodes
+  command: >-
+    docker run -d --network {{ NETNAME }} --name {{ item.fullname }} --hostname {{ item.fullname }}
+    --env-file {{ pjroot }}/vars/run/{{ item.fullname }}.env {{ item.portmap }}
+    -v /var/run/:/host/var/run
+    -v {{ mpath }}/{{item.org}}/peers/{{item.fullname}}/msp:/etc/hyperledger/fabric/msp
+    -v {{ mpath }}/{{item.org}}/peers/{{item.fullname}}/tls:/etc/hyperledger/fabric/tls
+    -v {{ item.fullname }}:/var/hyperledger/production
+    {{ committer_options }}
+    hyperledger/fabric-peer:{{ fabric.release }} peer node start
+  with_items: "{{ allcommitters }}"
+  register: committerstat
+  ignore_errors: yes
+
+- name: "Check errors"
+  when: committerstat.failed is defined and committerstat.failed == true
+  block:
+  - name: Error!
+    debug:
+      msg: "{{ committerstat.results[0].stderr }}"
     tags: [print_action]
 
   - name: Exit play when there is an error
@@ -74,7 +99,7 @@
     -v {{ mpath }}/{{item.org}}/orderers/{{item.fullname}}/msp:/var/hyperledger/orderer/msp
     -v {{ mpath }}/{{item.org}}/orderers/{{item.fullname}}/tls:/var/hyperledger/orderer/tls
     -v {{ item.fullname }}:/var/hyperledger/production/orderer
-    {{ container_options }}
+    {{ orderer_options }}
     hyperledger/fabric-orderer:{{ fabric.release }}
   with_items: "{{ allorderers }}"
   register: ordererstat

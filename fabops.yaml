@@ -46,6 +46,9 @@
     - name: Setup container_options for appending docker run command
       set_fact:
         container_options: "{{ ( fabric.container_options is defined ) | ternary(fabric.container_options, '') }}"
+        orderer_options: "{{ ( fabric.orderer_options is defined ) | ternary(fabric.orderer_options, '') }}"
+        endorser_options: "{{ ( fabric.endorser_options is defined ) | ternary(fabric.endorser_options, '') }}"
+        committer_options: "{{ ( fabric.committer_options is defined ) | ternary(fabric.committer_options, '') }}"
 
     - meta: end_play
       when: allops|length == 0

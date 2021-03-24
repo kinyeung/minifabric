@@ -54,8 +54,26 @@
           {{ allpeers + [{'org':item.split('.')[1:] | join("."), 'portmap':'',
             'url': item, 'port': '7051', 'mspid': item.split('.')[1:] | join('-'),
             'name':item.split('.')[0], 'fullname': item, 'type': 'peer' }] }}
-      with_items: "{{ fabric.peers }}"
-      when: fabric.peers is defined
+      with_items: "{{ fabric.endorsers + fabric.committers }}"
+      when: ( fabric.endorsers is defined ) | ( fabric.committers is defined )
+    
+    - name: Get all endorser object list
+      set_fact:
+        allendorsers: |
+          {{ allendorsers + [{'org':item.split('.')[1:] | join("."), 'portmap':'',
+            'url': item, 'port': '7051', 'mspid': item.split('.')[1:] | join('-'),
+            'name':item.split('.')[0], 'fullname': item, 'type': 'peer' }] }}
+      with_items: "{{ fabric.endorsers }}"
+      when: fabric.endorsers is defined
+    
+    - name: Get all committer object list
+      set_fact:
+        allcommitters: |
+          {{ committers + [{'org':item.split('.')[1:] | join("."), 'portmap':'',
+            'url': item, 'port': '7051', 'mspid': item.split('.')[1:] | join('-'),
+            'name':item.split('.')[0], 'fullname': item, 'type': 'peer' }] }}
+      with_items: "{{ fabric.committers }}"
+      when: fabric.committers is defined
 
     - name: Get all couchdb object list
       set_fact:
@@ -63,8 +81,8 @@
           {{ allcouchdbs + [{'org':item.split('.')[1:] | join("."), 'portmap':'',
             'url': item+'.couchdb', 'port': '5984', 'mspid': item.split('.')[1:] | join('-'),
             'name':item.split('.')[0]+'.couchdb', 'fullname': item+'.couchdb', 'type': 'db' }] }}
-      with_items: "{{ fabric.peers }}"
-      when: fabric.peers is defined and (DB_TYPE|lower) == "couchdb"
+      with_items: "{{ fabric.endorsers + fabric.committers }}"
+      when: ( fabric.endorsers is defined ) | ( fabric.committers is defined ) and (DB_TYPE|lower) == "couchdb"
 
     - name: Get all orderer object list
       set_fact:
@@ -93,14 +111,29 @@
     - name: Get all peer object list
       set_fact:
         allpeers: |
-          {{ allpeers + [{'org':item.split('.')[1:] | join("."),
-            'url': ipaddr, 'port': nodeport, 'oport': (nodeport|int+1000)|string,
-            'portmap':'-p '+nodeport+':7051 -p '+((nodeport|int+1000)|string)+':7061',
-            'mspid': item.split('.')[1:] | join('-'),
+          {{ allpeers + [{'org':item.split('.')[1:] | join("."), 'portmap':'',
+            'url': item, 'port': '7051', 'mspid': item.split('.')[1:] | join('-'),
             'name':item.split('.')[0], 'fullname': item, 'type': 'peer' }] }}
-        nodeport: "{{ nodeport|int + 1 }}"
-      with_items: "{{ fabric.peers }}"
-      when: fabric.peers is defined
+      with_items: "{{ fabric.endorsers + fabric.committers }}"
+      when: ( fabric.endorsers is defined ) | ( fabric.committers is defined )
+    
+    - name: Get all endorser object list
+      set_fact:
+        allendorsers: |
+          {{ allendorsers + [{'org':item.split('.')[1:] | join("."), 'portmap':'',
+            'url': item, 'port': '7051', 'mspid': item.split('.')[1:] | join('-'),
+            'name':item.split('.')[0], 'fullname': item, 'type': 'peer' }] }}
+      with_items: "{{ fabric.endorsers }}"
+      when: fabric.endorsers is defined
+    
+    - name: Get all committer object list
+      set_fact:
+        allcommitters: |
+          {{ committers + [{'org':item.split('.')[1:] | join("."), 'portmap':'',
+            'url': item, 'port': '7051', 'mspid': item.split('.')[1:] | join('-'),
+            'name':item.split('.')[0], 'fullname': item, 'type': 'peer' }] }}
+      with_items: "{{ fabric.committers }}"
+      when: fabric.committers is defined
 
     - name: Get all couchdb object list
       set_fact:
@@ -110,8 +143,8 @@
             'mspid': item.split('.')[1:] | join('-'),
             'name':item.split('.')[0]+'.couchdb', 'fullname': item+'.couchdb', 'type': 'db' }] }}
         nodeport: "{{ nodeport|int + 1 }}"
-      with_items: "{{ fabric.peers }}"
-      when: fabric.peers is defined and (DB_TYPE|lower) == "couchdb"
+      with_items: "{{ fabric.endorsers + fabric.committers }}"
+      when: ( fabric.endorsers is defined ) | ( fabric.committers is defined ) and (DB_TYPE|lower) == "couchdb"
 
     - name: Get all orderer object list
       set_fact:

@@ -23,7 +23,7 @@ fabric:
   ### the default goproxy
   # goproxy: "https://proxy.golang.org,direct"
   ### the goproxy in China area
-  # goproxy: "https://goproxy.cn,direct"
+  goproxy: "https://goproxy.cn,direct"
   ### set the endpoint address to override the automatically detected IP address
   # endpoint_address: 104.196.45.144
   ### set the docker network name to override the automatically generated name.

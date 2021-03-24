@@ -71,7 +71,7 @@
     - name: Get all committer object list
       set_fact:
         allcommitters: |
-          {{ committers + [{'org':item.split('.')[1:] | join("."), 'portmap':'',
+          {{ allcommitters + [{'org':item.split('.')[1:] | join("."), 'portmap':'',
             'url': item, 'port': '7051', 'mspid': item.split('.')[1:] | join('-'),
             'name':item.split('.')[0], 'fullname': item, 'type': 'peer' }] }}
       with_items: "{{ fabric.committers }}"
@@ -131,7 +131,7 @@
     - name: Get all committer object list
       set_fact:
         allcommitters: |
-          {{ committers + [{'org':item.split('.')[1:] | join("."), 'portmap':'',
+          {{ allcommitters + [{'org':item.split('.')[1:] | join("."), 'portmap':'',
             'url': item, 'port': '7051', 'mspid': item.split('.')[1:] | join('-'),
             'name':item.split('.')[0], 'fullname': item, 'type': 'peer' }] }}
       with_items: "{{ fabric.committers }}"

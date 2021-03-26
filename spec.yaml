@@ -4,9 +4,10 @@ fabric:
   - "ca1.org1.example.com"
   endorsers: 
   - "peer2.org0.example.com"
-  committers: 
+  leaders:
   - "peer1.org0.example.com"
   - "peer1.org1.example.com"
+  committers: 
   - "peer2.org1.example.com"
   orderers:
   - "orderer1.example.com"

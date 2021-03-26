@@ -40,8 +40,7 @@
   - name: Select random peer from each org
     set_fact:
       temppeerlist: >-
-        {{ temppeerlist|default([]) + [ allendorsers|selectattr('org', 'equalto', item)|list|random ] }}
-    with_items: "{{ peerorgs }}"
+        {{ temppeerlist|default([]) + allendorsers }}
 
   - name: Add endorsing peer to the list from all peer list
     when: temppeerlist is defined

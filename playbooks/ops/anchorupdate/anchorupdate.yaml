@@ -4,7 +4,7 @@
 
 - name: Select a peer for anchor update.
   set_fact:
-    actingpeer: "{{ allcommitters | selectattr('org','equalto',updatingorg) | list | random }}"
+    actingpeer: "{{ ( allleaders + allcommitters ) | selectattr('org','equalto',updatingorg) | list | random }}"
 
 - name: Create anchor update script
   template:

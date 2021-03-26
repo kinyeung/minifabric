@@ -82,7 +82,7 @@
       set_fact:
         allpeers: |
           {{ allendorsers + allleaders + allcommitters }}
-          
+
     - name: Get all couchdb object list
       set_fact:
         allcouchdbs: |
@@ -116,18 +116,6 @@
       with_items: "{{ fabric.cas }}"
       when: fabric.cas is defined
 
-     - name: Get all peer object list
-      set_fact:
-        allpeers: |
-          {{ allpeers + [{'org':item.split('.')[1:] | join("."),
-            'url': ipaddr, 'port': nodeport, 'oport': (nodeport|int+1000)|string,
-            'portmap':'-p '+nodeport+':7051 -p '+((nodeport|int+1000)|string)+':7061',
-            'mspid': item.split('.')[1:] | join('-'),
-            'name':item.split('.')[0], 'fullname': item, 'type': 'peer' }] }}
-        nodeport: "{{ nodeport|int + 1 }}"
-      with_items: "{{ fabric.endorsers + fabric.leaders + fabric.committers }}"
-      when: fabric.endorsers is defined or fabric.leaders is defined or fabric.committers is defined
-
     - name: Get all leader peer object list
       set_fact:
         allleaders: |
@@ -160,6 +148,11 @@
             'name':item.split('.')[0], 'fullname': item, 'type': 'peer' }] }}
       with_items: "{{ fabric.committers }}"
       when: fabric.committers is defined
+      
+    - name: Get all peer object list
+      set_fact:
+        allpeers: |
+          {{ allendorsers + allleaders + allcommitters }}
 
     - name: Get all couchdb object list
       set_fact:

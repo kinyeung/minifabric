@@ -12,12 +12,11 @@ fi
 
 peer lifecycle chaincode commit -o $ORDERER_ADDRESS --channelID {{ CHANNEL_NAME }} \
   --name {{ CC_NAME }} --version {{ CC_VERSION }} --sequence $SEQUENCE \
-{% if endorsingpeers|length > 0 %}
-{% for endorser in endorsingpeers %}
-  --peerAddresses {{ endorser.endpoint }} \
-  --tlsRootCertFiles {{ endorser.tlsca }} \
+{% for anorg in peerorgs %}
+{%   set onepeer = allpeers|selectattr('org', 'equalto', anorg)|list|random %}
+  --peerAddresses {{ onepeer.url }}:{{ onepeer.port }} \
+  --tlsRootCertFiles /vars/keyfiles/peerOrganizations/{{ anorg }}/peers/{{ onepeer.fullname }}/tls/ca.crt \
 {% endfor %}
-{% endif %}
 {% if (CC_INIT_REQUIRED|lower) == 'true' %}
   --init-required \
 {% endif %}

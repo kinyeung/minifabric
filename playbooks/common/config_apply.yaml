@@ -77,11 +77,6 @@
             'name':item.split('.')[0], 'fullname': item, 'type': 'peer' }] }}
       with_items: "{{ fabric.committers }}"
       when: fabric.committers is defined
-    
-    - name: Get all peer object list
-      set_fact:
-        allpeers: |
-          {{ allendorsers + allleaders + allcommitters }}
 
     - name: Get all couchdb object list
       set_fact:
@@ -148,11 +143,6 @@
             'name':item.split('.')[0], 'fullname': item, 'type': 'peer' }] }}
       with_items: "{{ fabric.committers }}"
       when: fabric.committers is defined
-      
-    - name: Get all peer object list
-      set_fact:
-        allpeers: |
-          {{ allendorsers + allleaders + allcommitters }}
 
     - name: Get all couchdb object list
       set_fact:
@@ -176,6 +166,11 @@
         nodeport: "{{ nodeport|int + 1 }}"
       with_items: "{{ fabric.orderers }}"
       when: fabric.orderers is defined
+  
+  - name: Get all peer object list
+    set_fact:
+      allpeers: |
+        {{ allendorsers + allleaders + allcommitters }}
 
   - name: Fix possible misconfiguration issues
     set_fact:

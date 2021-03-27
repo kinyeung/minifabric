@@ -32,7 +32,8 @@ case $optkey in
   -b|--block-number)
     BLOCK_NUMBER="$2";shift;shift;;
   -c|--channel-name)
-    CHANNEL_NAME="$2"+$(date "+%H%M%S");shift;shift;;
+    CHANNEL_NAME="$2";shift;shift;;
+    CHANNEL_NAME=$CHANNEL_NAME$(date "+%H%M%S")
   -s|--database-type)
     DB_TYPE="$2";shift;shift;;
   -l|--chaincode-language)

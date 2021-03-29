@@ -92,7 +92,7 @@
   command: >-
     docker run -d --network {{ NETNAME }} --name {{ item.fullname }} --hostname {{ item.fullname }}
     --env-file {{ pjroot }}/vars/run/{{ item.fullname }}.env {{ item.portmap }}
-    -e CORE_PEER_GOSSIP_ORGLEADER=false
+    -e "CORE_PEER_GOSSIP_ORGLEADER=false"
     -v /var/run/:/host/var/run
     -v {{ mpath }}/{{item.org}}/peers/{{item.fullname}}/msp:/etc/hyperledger/fabric/msp
     -v {{ mpath }}/{{item.org}}/peers/{{item.fullname}}/tls:/etc/hyperledger/fabric/tls

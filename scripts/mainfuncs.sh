@@ -63,7 +63,7 @@ function printHelp() {
   echo "      - 'caliperrun'  - (experimental) run caliper test"
   echo "      - 'orgjoin'  - (experimental) join an org to the current channel"
   echo "      - 'update'  - (experimental) update minifabric to the latest version"
-  echo "      - 'another'  - (experimental) create another channel"
+  echo "      - 'another'  - (experimental) create another channel and must use -c"
   echo ""
   echo "    options:"
   echo "    -c|--channel-name         - channel name to use (defaults to \"mychannel\")"

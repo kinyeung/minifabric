@@ -33,6 +33,7 @@ OPNAMES:
   caliperrun: "run caliper test"
   update: "update Minifabric"
   configmerge: "merge configuration"
+  another: "create another channel"
 PRECONDITIONS:
   ccinstall: ['PEER']
   ccapprove: ['PEER', 'ORDERER']
@@ -68,6 +69,7 @@ PRECONDITIONS:
   caliperrun: ['PEER', 'ORDERER']
   update: []
   configmerge: []
+  another: ['PEER', 'ORDERER']
 LANGUAGEENVS:
   java: 'java:latest'
   go: 'golang:latest'

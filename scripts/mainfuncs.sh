@@ -22,7 +22,8 @@ OPNAMES=([up]="$LINE0$LINE1" [netup]='imageget,certgen,netup,netstats' \
   [channelsign]='channelsign' [channelupdate]='channelupdate' \
   [portainerup]='portainerup' [portainerdown]='portainerdown' \
   [anchorupdate]='anchorupdate' [explorerup]='explorerup' [explorerdown]='explorerdown' \
-  [nodeimport]='nodeimport' [discover]='discover' [imageget]='imageget' [update]='update')
+  [nodeimport]='nodeimport' [discover]='discover' [imageget]='imageget' [update]='update' \
+  [another]='channelcreate,channeljoin,anchorupdate,profilegen,ccinstall,ccapprove,cccommit,ccinstantiate,discover')
 
 # Print the usage message
 function printHelp() {
@@ -62,6 +63,7 @@ function printHelp() {
   echo "      - 'caliperrun'  - (experimental) run caliper test"
   echo "      - 'orgjoin'  - (experimental) join an org to the current channel"
   echo "      - 'update'  - (experimental) update minifabric to the latest version"
+  echo "      - 'another'  - (experimental) create another channel"
   echo ""
   echo "    options:"
   echo "    -c|--channel-name         - channel name to use (defaults to \"mychannel\")"

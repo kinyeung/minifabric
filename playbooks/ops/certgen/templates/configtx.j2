@@ -23,7 +23,7 @@ Organizations:
           Rule: "OR('{{ orgid }}.peer')"
 
       AnchorPeers:
-{%       for peer in allpeers %}
+{%       for peer in ( allleaders + allcommitters )  %}
 {%         if peer.org == org %}
       - Host: {{ peer.url }}
         Port: {{ peer.port }}

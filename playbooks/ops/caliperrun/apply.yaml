@@ -2,7 +2,7 @@
 - name: Set up sdk release
   set_fact:
     sdk_release: "2.1.0"
-    caliper_release: "0.4.1"
+    caliper_release: "0.4.2"
 
 - name: Create apprun script
   template:

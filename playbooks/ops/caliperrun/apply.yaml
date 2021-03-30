@@ -76,8 +76,9 @@
 
 - name: Caliper test run
   when: runresults.rc == 0
-  command: >-
-    mv {{ pjroot }}/vars/report.html {{ pjroot }}/vars/report$(date "+%H%M%S").html
-  debug:
-    msg: "View results in vars/report.html"
-  tags: [print_action]
+  block:
+  - debug:
+      msg: "View results in vars/report-time.html"
+    tags: [print_action]
+  - command: >-
+      mv {{ pjroot }}/vars/report.html {{ pjroot }}/vars/report$(date "+%H%M%S").html

@@ -80,6 +80,5 @@
   - debug:
       msg: "View results in vars/report-time.html"
     tags: [print_action]
-  - command: >-
-      time=$(date "+%H%M%S")
-      mv {{ hostroot }}/vars/report.html {{ hostroot }}/vars/report{{ time }}.html
+  - command: "mv {{ hostroot }}/vars/report.html {{ hostroot }}/vars/report$(date "+%H%M%S").html"
+      

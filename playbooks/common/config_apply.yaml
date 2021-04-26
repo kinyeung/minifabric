@@ -119,6 +119,7 @@
             'portmap':'-p '+nodeport+':7051 -p '+((nodeport|int+1000)|string)+':7061',
             'mspid': item.split('.')[1:] | join('-'),
             'name':item.split('.')[0], 'fullname': item, 'type': 'peer' }] }}
+        nodeport: "{{ nodeport|int + 1 }}"
       with_items: "{{ fabric.leaders }}"
       when: fabric.leaders is defined
 
@@ -130,6 +131,7 @@
             'portmap':'-p '+nodeport+':7051 -p '+((nodeport|int+1000)|string)+':7061',
             'mspid': item.split('.')[1:] | join('-'),
             'name':item.split('.')[0], 'fullname': item, 'type': 'peer' }] }}
+        nodeport: "{{ nodeport|int + 1 }}"
       with_items: "{{ fabric.endorsers }}"
       when: fabric.endorsers is defined
     
@@ -141,6 +143,7 @@
             'portmap':'-p '+nodeport+':7051 -p '+((nodeport|int+1000)|string)+':7061',
             'mspid': item.split('.')[1:] | join('-'),
             'name':item.split('.')[0], 'fullname': item, 'type': 'peer' }] }}
+        nodeport: "{{ nodeport|int + 1 }}"
       with_items: "{{ fabric.committers }}"
       when: fabric.committers is defined
 

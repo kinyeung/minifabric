@@ -8,7 +8,7 @@
     path: "{{ pjroot }}/vars"
     file_type: any
     patterns: "*"
-    excludes: 'kubeconfig'
+    excludes: 'chaincode'
   register: toberemoved
 
 - name: Ansible remove file glob
